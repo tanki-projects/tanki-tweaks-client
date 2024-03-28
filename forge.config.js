@@ -16,6 +16,7 @@ module.exports = {
         })
     ],
     packagerConfig: {
+        executableName: package.name,
         asar: true,
         icon: "./resources/icons/icon",
         appCategoryType: "public.app-category.action-games"
@@ -26,7 +27,6 @@ module.exports = {
             config: (arch) => {
                 return {
                     options: {
-                        name: `tanki-online-${package.version}-${arch}`,
                         maintainer: "Niced <tettovs@gmail.com>",
                         icon: "./resources/icons/icon.png",
                         categories: ["Game"],

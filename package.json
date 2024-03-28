@@ -1,6 +1,6 @@
 {
     "name": "tanki-tweaks-client",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "author": {
         "name": "Niced",
         "email": "tettovs@gmail.com",
@@ -44,7 +44,6 @@
         "package": "electron-forge package",
         "make": "electron-forge make",
         "make-windows": "npm run make -- --platform=win32 --arch=ia32,x64,arm64",
-        "make-macos": "npm run make -- --platform=darwin --arch=x64,arm64",
-        "make-linux": "npm run make -- --platform=linux --arch=ia32,x64"
+        "make-macos": "npm run make -- --platform=darwin --arch=x64,arm64"
     }
 }
