@@ -4,12 +4,20 @@ import Path from "path";
 import { spawn } from "child_process";
 import parseArgs from "minimist";
 import { BrowserWindow, app as application, dialog, session, shell } from "electron";
+import { createHash } from "crypto";
 import { XMLParser } from "fast-xml-parser";
 import FileDownloader from "nodejs-file-downloader";
 import extractZip from "extract-zip";
 
 const TANKI_ONLINE_URL = "https://tankionline.com/play/";
-const TANKI_TWEAKS_EXTENSION_ID = "khcoecipddmigggaeokhmhmhjhlpcpnb";
+const TANKI_TWEAKS_EXTENSION_KEY =
+    "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjc6ZrxUpSuXqCI+J3a3F" +
+    "BHExxjt4tp4cmVzBu226D8JQIak/XOZaHu4j6DnrC9F7yFGC5KZDx9rXeSpJqhuh" +
+    "a7e8buyFSTDK0BBmBfczOjBn3cIikUrEuKsbEnWUDGgbEGu8kUkcNaIVGYI/LQsK" +
+    "i8NbGNojacVQ5oQby2Ckg/f06GKM4G3eS4ELzRzaOBwBdGLC2LQvCgXAiGPw3J5u" +
+    "yo0AbulhbS1rHxnzvhf1iDVR1+Lii0wjHvSYGCFh88BLqv0QhkmtN57V6iYxwifM" +
+    "LtmuoB9HXNHTfpxqbgoYRQkEarNEAZ1ErgwXNWZIqi541r9OOEbVTshS/GDeFD8Q" +
+    "wwIDAQAB";
 
 const options = parseArgs(process.argv.slice(1));
 
@@ -53,8 +61,6 @@ function createMainWindow() {
     const window = new BrowserWindow({
         width: 1280,
         height: 800,
-        minWidth: 1280,
-        minHeight: 720,
         title: "Tanki Online",
         titleBarStyle: OS.platform() === "darwin" ?
             "hidden" : "default",
@@ -87,7 +93,7 @@ async function updateAndLoadExtensions(userDataPath: string) {
     const directoryPaths =
         FS.readdirSync(extensionsPath, { withFileTypes: true })
             .filter((dirent) => dirent.isDirectory())
-            .map((dirent) => dirent.path);
+            .map((dirent) => Path.join(dirent.path, dirent.name));
     for (const directoryPath of directoryPaths) {
         try {
             const manifestPath = Path.join(directoryPath, "manifest.json");
@@ -101,11 +107,11 @@ async function updateAndLoadExtensions(userDataPath: string) {
     }
 
     if (extensions.find((extension) =>
-        extension.manifest.key === TANKI_TWEAKS_EXTENSION_ID) == null) {
+        extension.manifest.key === TANKI_TWEAKS_EXTENSION_KEY) == null) {
         const tweaksExtension = {
             path: Path.join(extensionsPath, "tanki-tweaks"),
             manifest: {
-                key: TANKI_TWEAKS_EXTENSION_ID
+                key: TANKI_TWEAKS_EXTENSION_KEY
             }
         };
         extensions.push(tweaksExtension);
@@ -126,8 +132,10 @@ async function updateExtension(extension: { path: string; manifest: any }) {
 
     const manifest = extension.manifest;
     if (manifest.key == null) return;
-    const latestVersion = await getLatestExtensionVersion(manifest.key,
-        manifest.version, manifest.update_url);
+    const latestVersion =
+        await getLatestExtensionVersion(
+            extensionKeyToID(manifest.key),
+            manifest.update_url);
     if (manifest.version === latestVersion.version) return;
 
     const crxPath = Path.join(application.getPath("temp"),
@@ -150,8 +158,20 @@ async function updateExtension(extension: { path: string; manifest: any }) {
     }
 }
 
+function extensionKeyToID(key: string): string {
+
+    const keyDER = Buffer.from(key, "base64");
+    const keyHash = createHash("sha256").update(keyDER)
+        .digest("hex").substring(0, 32);
+    let id = "";
+    for (const char of keyHash)
+        id += String.fromCharCode("a".charCodeAt(0) +
+            parseInt(char, 16));
+    return id;
+}
+
 async function getLatestExtensionVersion(
-    id: string, version: string = "0.0.0.1", updateURL: string =
+    id: string, updateURL: string =
         "https://clients2.google.com/service/update2/crx"
 ): Promise<{ version: string; crx: string }> {
 
@@ -170,7 +190,7 @@ async function getLatestExtensionVersion(
         prodchannel: "unknown",
         prodversion: process.versions.chrome ?? "9999.0.9999.0",
         acceptformat: "crx2,crx3",
-        x: `id=${id}&v=${version}&uc`
+        x: `id=${id}&uc`
     };
     const queryString = "?" + new URLSearchParams(queryParams).toString();
     const updateResponse = await fetch(new URL(queryString, updateURL));
