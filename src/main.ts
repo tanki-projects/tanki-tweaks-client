@@ -41,6 +41,7 @@ async function main() {
 
     application.commandLine.appendSwitch("disable-renderer-backgrounding");
     application.commandLine.appendSwitch("force_high_performance_gpu");
+    application.commandLine.appendSwitch("ignore-gpu-blocklist");
     await application.whenReady();
 
     try {
@@ -132,16 +133,15 @@ async function updateExtension(extension: { path: string; manifest: any }) {
 
     const manifest = extension.manifest;
     if (manifest.key == null) return;
-    const latestVersion =
-        await getLatestExtensionVersion(
-            extensionKeyToID(manifest.key),
-            manifest.update_url);
+    const extensionID = extensionKeyToID(manifest.key);
+    const latestVersion = await getLatestExtensionVersion(extensionID,
+        manifest.update_url);
     if (manifest.version === latestVersion.version) return;
 
     const crxPath = Path.join(application.getPath("temp"),
-        manifest.key + ".crx");
+        extensionID + ".crx");
     const zipPath = Path.join(application.getPath("temp"),
-        manifest.key + ".zip");
+        extensionID + ".zip");
     try {
         await new FileDownloader({
             url: latestVersion.crx,
