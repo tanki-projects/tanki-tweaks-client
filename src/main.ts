@@ -10,6 +10,10 @@ import FileDownloader from "nodejs-file-downloader";
 import extractZip from "extract-zip";
 
 const TANKI_ONLINE_URL = "https://tankionline.com/play/";
+const EXTERNAL_BROWSER_URLS = [
+    "https://discord.gg/hJn2QeJsT3",
+    "https://ru.tankiforum.com/topic/320910/"
+];
 const TANKI_TWEAKS_EXTENSION_KEY =
     "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjc6ZrxUpSuXqCI+J3a3F" +
     "BHExxjt4tp4cmVzBu226D8JQIak/XOZaHu4j6DnrC9F7yFGC5KZDx9rXeSpJqhuh" +
@@ -42,11 +46,10 @@ async function main() {
     application.commandLine.appendSwitch("disable-renderer-backgrounding");
     application.commandLine.appendSwitch("force_high_performance_gpu");
     application.commandLine.appendSwitch("ignore-gpu-blocklist");
+    application.commandLine.appendSwitch("enable-gpu-rasterization");
     await application.whenReady();
 
-    try {
-        await fetch(options.url ?? TANKI_ONLINE_URL);
-    } catch (error) {
+    if (!(await canConnect(options.url ?? TANKI_ONLINE_URL))) {
         dialog.showErrorBox("Ошибка / Error",
             "Нет подключения к серверу игры.\n\n" +
             "Unable to connect to the game server.");
@@ -57,6 +60,18 @@ async function main() {
     createMainWindow();
 }
 
+async function canConnect(url: string,
+    tries: number = 3): Promise<boolean> {
+
+    for (let i = 0; i < tries; i++) {
+        try {
+            await fetch(url);
+            return true;
+        } catch (error) { }
+    }
+    return false;
+}
+
 function createMainWindow() {
 
     const window = new BrowserWindow({
@@ -64,7 +79,7 @@ function createMainWindow() {
         height: 800,
         title: "Tanki Online",
         titleBarStyle: OS.platform() === "darwin" ?
-            "hidden" : "default",
+            "customButtonsOnHover" : "default",
         show: false
     });
     if (OS.platform() === "win32")
@@ -77,8 +92,11 @@ function createMainWindow() {
 
     window.webContents.setWindowOpenHandler(
         ({ url }) => {
-            shell.openExternal(url);
-            return { action: "deny" };
+            if (EXTERNAL_BROWSER_URLS.includes(url)) {
+                shell.openExternal(url);
+                return { action: "deny" };
+            }
+            return { action: "allow" };
         });
     window.once("ready-to-show", () =>
         window.maximize());
