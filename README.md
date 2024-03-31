@@ -31,9 +31,9 @@
 Также есть возможность самостоятельно собрать deb-пакет для Linux - смотрите «Сборка из исходников».
 
 **Windows:**
-[**x64**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.3/tanki-online-1.0.3-x64.exe) [**ARM**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.3/tanki-online-1.0.3-arm64.exe) [**ia32**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.3/tanki-online-1.0.3-ia32.exe)
+[**x64**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.4/tanki-online-1.0.4-x64.exe) [**ARM**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.4/tanki-online-1.0.4-arm64.exe) [**ia32**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.4/tanki-online-1.0.4-ia32.exe)
 
-**macOS:** [**ARM**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.3/tanki-online-1.0.3-arm64.dmg) [**x64**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.3/tanki-online-1.0.3-x64.dmg)
+**macOS:** [**ARM**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.4/tanki-online-1.0.4-arm64.dmg) [**x64**](https://github.com/tanki-projects/tanki-tweaks-client/releases/download/1.0.4/tanki-online-1.0.4-x64.dmg)
 
 ## Сборка из исходников
 
